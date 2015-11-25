@@ -41,6 +41,7 @@ import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
+import java.awt.SystemColor;
 
 public class Main_GUI extends JFrame implements ActionListener{
 	private JSplitPane splitPane;
@@ -63,17 +64,21 @@ public class Main_GUI extends JFrame implements ActionListener{
 	private JButton btn_apply_filter;
 	private ArrayList<Matrix_Block> listBlock;
 	private JFileChooser fc;
-	private JButton image_original;
-	private JButton image_filtered;
+	private JLabel image_original;
+	private JLabel image_filtered;
 	private int image_height;
 	private int image_width;
+	private JPanel panel_matrix;
+	private JPanel panel_factor;
+	private JLabel lbl_weight;
+	private JTextField textField;
 	public Main_GUI() {
 		
 		super();
 		getContentPane().setLayout(new BorderLayout(0, 0));
 		this.setTitle("ADVDISC MP2");
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-		this.setSize((int)(screenSize.width/1.2),400);
+		this.setSize((int)(screenSize.width/1.2),450);
 		
 		listBlock = new ArrayList<Matrix_Block>();
 		fc = new JFileChooser();
@@ -108,8 +113,8 @@ public class Main_GUI extends JFrame implements ActionListener{
 		panel_image_content.add(panel_image_original, BorderLayout.WEST);
 		panel_image_original.setLayout(new BorderLayout(0, 0));
 		
-		image_original = new JButton("No Image");
-
+		image_original = new JLabel("No Image");
+		image_original.setHorizontalAlignment(SwingConstants.CENTER);
 		panel_image_original.add(image_original);
 		
 		panel_image_filtered = new JPanel();
@@ -118,7 +123,8 @@ public class Main_GUI extends JFrame implements ActionListener{
 		panel_image_content.add(panel_image_filtered, BorderLayout.CENTER);
 		panel_image_filtered.setLayout(new BorderLayout(0, 0));
 		
-		image_filtered = new JButton("No Image");
+		image_filtered = new JLabel("No Image");
+		image_filtered.setHorizontalAlignment(SwingConstants.CENTER);
 		panel_image_filtered.add(image_filtered, BorderLayout.CENTER);
 		
 		panel_filter = new JPanel();
@@ -142,9 +148,10 @@ public class Main_GUI extends JFrame implements ActionListener{
 		lbl_image_filters = new JLabel("Image Filter :  ");
 		panel_filter_options.add(lbl_image_filters, BorderLayout.WEST);
 		
-		cmb_image_filters = new JComboBox();
+		cmb_image_filters = new JComboBox<String>();
+		cmb_image_filters.setBackground(SystemColor.window);
 		panel_filter_options.add(cmb_image_filters);
-		cmb_image_filters.setModel(new DefaultComboBoxModel(new String[] {"Custom", "Blur", "Brighten", "Edge Detect ", "Edge Enhance", "Emboss", "Grayscale", "Sharpen", "Threshold"}));
+		cmb_image_filters.setModel(new DefaultComboBoxModel(new String[] {"Custom", "Blur", "Brighten", "Edge Detect ", "Edge Enhance", "Emboss", "Grayscale", "Identity", "Sharpen", "Threshold"}));
 		
 		btn_reset_filter = new JButton("Reset Filter");
 		btn_reset_filter.addActionListener(this);
@@ -153,13 +160,28 @@ public class Main_GUI extends JFrame implements ActionListener{
 		panel_filter_content = new JPanel();
 		panel_filter_content.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "3x3 Matrix", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
 		panel_filter.add(panel_filter_content, BorderLayout.CENTER);
+		panel_filter_content.setLayout(new BorderLayout(0, 0));
 		
-		GridBagLayout gbl_panel_filter_content = new GridBagLayout();
-		gbl_panel_filter_content.columnWidths = new int[]{0};
-		gbl_panel_filter_content.rowHeights = new int[]{0, 0};
-		gbl_panel_filter_content.columnWeights = new double[]{Double.MIN_VALUE};
-		gbl_panel_filter_content.rowWeights = new double[]{0.0, Double.MIN_VALUE};
-		panel_filter_content.setLayout(gbl_panel_filter_content);
+		panel_matrix = new JPanel();
+		panel_filter_content.add(panel_matrix);
+		GridBagLayout gbl_panel_matrix = new GridBagLayout();
+		gbl_panel_matrix.columnWidths = new int[]{0};
+		gbl_panel_matrix.rowHeights = new int[]{0};
+		gbl_panel_matrix.columnWeights = new double[]{Double.MIN_VALUE};
+		gbl_panel_matrix.rowWeights = new double[]{Double.MIN_VALUE};
+		panel_matrix.setLayout(gbl_panel_matrix);
+		
+		panel_factor = new JPanel();
+		panel_factor.setBackground(SystemColor.controlLtHighlight);
+		panel_filter_content.add(panel_factor, BorderLayout.NORTH);
+		panel_factor.setLayout(new BorderLayout(0, 0));
+		
+		lbl_weight = new JLabel("Weight :  ");
+		panel_factor.add(lbl_weight, BorderLayout.WEST);
+		
+		textField = new JTextField();
+		panel_factor.add(textField, BorderLayout.CENTER);
+		textField.setColumns(10);
 		
 		btn_apply_filter = new JButton("Apply Filter");
 		btn_apply_filter.addActionListener(this);
@@ -225,7 +247,7 @@ public class Main_GUI extends JFrame implements ActionListener{
 		
 		String title = size+"X"+size+" Matrix";
 		panel_filter_content.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), title, TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
-		panel_filter_content.removeAll();
+		panel_matrix.removeAll();
 		for(int x = 0; x<size; x++)
 			for(int y = 0; y<size; y++){
 				Matrix_Block mb = new Matrix_Block();
@@ -236,7 +258,7 @@ public class Main_GUI extends JFrame implements ActionListener{
 				gbc_textField.weightx = 30;
 				gbc_textField.weighty = 30;
 				listBlock.add(mb);
-				panel_filter_content.add(mb, gbc_textField);
+				panel_matrix.add(mb, gbc_textField);
 			}
 		
 		this.revalidate();
