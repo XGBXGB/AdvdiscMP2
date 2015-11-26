@@ -1,5 +1,6 @@
 package view;
 
+import controller.Controller;
 import javax.swing.JFrame;
 import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
@@ -42,8 +43,10 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
 import java.awt.SystemColor;
+import model.Observer;
 
-public class Main_GUI extends JFrame implements ActionListener{
+public class Main_GUI extends JFrame implements ActionListener, Observer{
+        private Controller controller;
 	private JSplitPane splitPane;
 	private JPanel panel_image, panel_image_content, panel_image_original, panel_image_filtered;
 	private JPanel panel_filter_content, panel_filter, panel_filter_header;
@@ -75,6 +78,7 @@ public class Main_GUI extends JFrame implements ActionListener{
 	public Main_GUI() {
 		
 		super();
+                controller = Controller.getInstance();
 		getContentPane().setLayout(new BorderLayout(0, 0));
 		this.setTitle("ADVDISC MP2");
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -263,6 +267,7 @@ public class Main_GUI extends JFrame implements ActionListener{
 		
 		this.revalidate();
 		this.repaint();
+                cmb_image_filters.addActionListener(this);
 	}
 	
 	public void resetMatrix(){
@@ -298,8 +303,20 @@ public class Main_GUI extends JFrame implements ActionListener{
 		if(e.getSource() ==  btn_reset_filter){
 			this.resetMatrix();
 		}
+                else if(e.getSource() == cmb_image_filters) {
+                    String filterName = cmb_image_filters.getSelectedItem().toString();
+                    int size = (int) Math.sqrt(listBlock.size());
+                    double[][] filterArray = controller.getFilterArray(size, filterName);
+                    
+                    for(int i = 0; i < size; i++) {
+                        for(int j = 0; j < size; j++) {
+                            int index = i * size + j;
+                            listBlock.get(index).setText(String.valueOf(filterArray[i][i]));
+                        }
+                    }
+                }
 		else if(e.getSource() == btn_apply_filter){
-			
+			if(cmb_image_filters.)
 		}else if(e.getSource() == menuItem_newImage){
 				JFileChooser chooser = new JFileChooser();
 				int returnVal = chooser.showOpenDialog(null);
@@ -332,5 +349,11 @@ public class Main_GUI extends JFrame implements ActionListener{
 		}
 		
 	}
+
+    @Override
+    public void update() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        //get filtered image from controller
+    }
 
 }

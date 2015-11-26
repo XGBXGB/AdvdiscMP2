@@ -121,11 +121,21 @@ public class AdvdiscMP2 {
         //float[] f = new float[]{(float) 0.5,(float) 0.5,(float) 0.5,(float) 0.5};
         //toSharpen(image);
 
-        double[][] kernel = {{0, -5, 0}, {-5, 21, -5}, {0, -5, 0}};
+        double[][] kernel = {
+            { 0, 0, 0, 0, 0,},
+            { 0, 0, 0, 0, 0,},
+            { 0, 0, 22/25.0, 0, 0,},
+            { 0, 0, 0, 0, 0,},
+            { 0, 0, 0, 0, 0,}};
+        
+        double[][] kernel2 = {
+            { -2, -1, -0},
+            { -1, 1, 1},
+            { -0, 1,  2}};
         
   
         
-        BufferedImage newImage = toConvolute(image,kernel,3,3);
+        BufferedImage newImage = toConvolute(image,kernel,5,5);
         File output = new File("..\\AdvdiscMP2\\processed-" + input.getName());
         ImageIO.write(newImage, "jpg", output);
     }
