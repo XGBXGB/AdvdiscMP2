@@ -28,6 +28,7 @@ public class Controller implements Subject{
         createDefaultEmbossFilter();
         createDefaultIdentityFilter();
         createDefaultSharpenFilter();
+        createDefaultEdgeDetectFilter();
     }
     
     public BufferedImage getOriginal(){
@@ -44,6 +45,10 @@ public class Controller implements Subject{
             kernel = ff.getFilter(filter).getMatrix3x3();
         else
             kernel = ff.getFilter(filter).getMatrix5x5();
+        return model.filterImage(kernel, kernelDimension, kernelDimension, divisor);
+    }
+    
+    public BufferedImage filterImage(double[][] kernel, Double divisor, int kernelDimension){
         return model.filterImage(kernel, kernelDimension, kernelDimension, divisor);
     }
     
@@ -89,13 +94,34 @@ public class Controller implements Subject{
         double[][] matrix5x5 = new double[][]{
             {-25, -25, -25, -25, -25},
             {-25, 50, 50, 50, -25},
-            {-25, 50, 200, 50, -25},
+            {-25, 50, 25, 50, -25},
             {-25, 50, 50, 50, -25},
             {-25, -25, -25, -25, -25}
         };
         f.setMatrix3x3(matrix3x3);
         f.setMatrix5x5(matrix5x5);
         ff.registerFilter("Sharpen", f);
+    }
+    
+    public void createDefaultEdgeDetectFilter() {
+        this.f = new Filter();
+        this.f.setName("Edge Detect");
+
+        double[][] matrix3x3 = new double[][]{
+            {-9, -9, -9},
+            {-9, 72, -9},
+            {-9, -9, -9}
+        };
+        double[][] matrix5x5 = new double[][]{
+            {-25, -25, -25, -25, -25},
+            {-25, 50, 50, 50, -25},
+            {-25, 50, 0, 50, -25},
+            {-25, 50, 50, 50, -25},
+            {-25, -25, -25, -25, -25}
+        };
+        f.setMatrix3x3(matrix3x3);
+        f.setMatrix5x5(matrix5x5);
+        ff.registerFilter("Edge Detect", f);
     }
 
     public void createDefaultBlurFilter() {

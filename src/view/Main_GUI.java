@@ -164,7 +164,7 @@ public class Main_GUI extends JFrame implements ActionListener, Observer, KeyLis
         cmb_image_filters = new JComboBox<String>();
         cmb_image_filters.setBackground(SystemColor.window);
         panel_filter_options.add(cmb_image_filters);
-        cmb_image_filters.setModel(new DefaultComboBoxModel(new String[]{"Custom", "Blur", "Brighten", "Edge Detect ", "Edge Enhance", "Emboss", "Grayscale", "Identity", "Sharpen", "Threshold"}));
+        cmb_image_filters.setModel(new DefaultComboBoxModel(new String[]{"Custom", "Blur", "Brighten", "Edge Detect", "Edge Enhance", "Emboss", "Darken", "Identity", "Sharpen", "Threshold"}));
 
         btn_reset_filter = new JButton("Reset Filter");
         btn_reset_filter.addActionListener(this);
@@ -345,7 +345,20 @@ public class Main_GUI extends JFrame implements ActionListener, Observer, KeyLis
             }
         } else if (e.getSource() == btn_apply_filter) {
             if (checkBoxes() == true) {
-                BufferedImage filteredImage = controller.filterImage(cmb_image_filters.getSelectedItem().toString(), Double.parseDouble(textField.getText()), (int) Math.sqrt(listBlock.size()));
+                BufferedImage filteredImage = null;
+                if (!cmb_image_filters.getSelectedItem().toString().equals("Custom")) {
+                    filteredImage = controller.filterImage(cmb_image_filters.getSelectedItem().toString(), Double.parseDouble(textField.getText()), (int) Math.sqrt(listBlock.size()));
+                } else {
+                    int size = (int) Math.sqrt(listBlock.size());
+                    double[][] kernel = new double[size][size];
+                    for (int i = 0; i < size; i++) {
+                        for (int j = 0; j < size; j++) {
+                            int index = i * size + j;
+                            kernel[i][j] = Double.parseDouble(listBlock.get(index).getText());
+                        }
+                    }
+                    filteredImage = controller.filterImage(kernel, Double.parseDouble(textField.getText()), (int) Math.sqrt(listBlock.size()));
+                }
                 setFiltered(filteredImage);
             }
         } else if (e.getSource() == menuItem_newImage) {
@@ -368,12 +381,13 @@ public class Main_GUI extends JFrame implements ActionListener, Observer, KeyLis
             };
 
         } else if (e.getSource() == menuItem_3x3) {
-
+            cmb_image_filters.setSelectedItem("Custom");
             resetMatrix();
             textField.setText("9.0");
             listBlock.clear();
             setMatrix(3);
         } else if (e.getSource() == menuItem_5x5) {
+            cmb_image_filters.setSelectedItem("Custom");
             resetMatrix();
             textField.setText("25.0");
             listBlock.clear();
