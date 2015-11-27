@@ -2,7 +2,9 @@ package controller;
 
 import driver.Filter;
 import driver.FilterFactory;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import model.ImageModel;
 import model.Observer;
 import model.Subject;
 
@@ -12,18 +14,45 @@ public class Controller implements Subject{
     private Filter f;
     private static Controller instance;
     private ArrayList<Observer> observers;
+    private ImageModel model;
 
     public Controller() {
         observers = new ArrayList();
         ff = FilterFactory.getInstance();
         f = null;
         instance = null;
+        model = new ImageModel();
         createDefaultBlurFilter();
         createDefaultBrightenFilter();
         createDefaultDarkenFilter();
         createDefaultEmbossFilter();
         createDefaultIdentityFilter();
         createDefaultSharpenFilter();
+    }
+    
+    public BufferedImage getOriginal(){
+        return model.getOriginal();
+    }
+    
+    public BufferedImage getFiltered(){
+        return model.getFiltered();
+    }
+    
+    public BufferedImage filterImage(String filter, Double divisor, int kernelDimension){
+        double[][] kernel;
+        if(kernelDimension == 3)
+            kernel = ff.getFilter(filter).getMatrix3x3();
+        else
+            kernel = ff.getFilter(filter).getMatrix5x5();
+        return model.filterImage(kernel, kernelDimension, kernelDimension, divisor);
+    }
+    
+    public void setOriginal(BufferedImage img){
+        model.setOriginal(img);
+    }
+    
+    public void setFiltered(BufferedImage img){
+        model.setFiltered(img);
     }
     
     public double[][] getFilterArray(int size, String filterName) {

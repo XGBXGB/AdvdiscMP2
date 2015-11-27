@@ -20,14 +20,9 @@ public class ImageModel {
     private BufferedImage image;
     private BufferedImage filteredImage;
     
-    public ImageModel(String path) {
-        try {
-            File input = new File("..\\AdvdiscMP2\\testImage.jpg");
-            image = ImageIO.read(input);
-            filteredImage = ImageIO.read(input);
-        } catch (IOException e) {
-
-        }
+    public ImageModel() {
+        image = null;
+        filteredImage = null;
     }
     
     public BufferedImage getOriginal(){
@@ -46,7 +41,7 @@ public class ImageModel {
         filteredImage = image;
     }
     
-    public BufferedImage filterImage(double[][] kernel, int kernelWidth, int kernelHeight) {
+    public BufferedImage filterImage(double[][] kernel, int kernelWidth, int kernelHeight, double divisor) {
 
         int widthHalfOffset = kernelWidth / 2;
         int heightHalfOffset = kernelHeight / 2;
@@ -66,9 +61,9 @@ public class ImageModel {
                         int pixelY = (i - heightHalfOffset + kernelX + h) % h;
                         double weight = kernel[kernelX][kernelY];
                         Color currPixel = new Color(image.getRGB(pixelX, pixelY));
-                        r += currPixel.getRed() * weight;
-                        g += currPixel.getGreen() * weight;
-                        b += currPixel.getBlue() * weight;
+                        r += currPixel.getRed() * (weight/divisor);
+                        g += currPixel.getGreen() * (weight/divisor);
+                        b += currPixel.getBlue() * (weight/divisor);
                     }
                 }
                 if(r<0)r=0;
