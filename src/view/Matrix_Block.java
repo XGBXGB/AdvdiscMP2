@@ -7,6 +7,7 @@ import java.awt.Dimension;
 import javax.swing.JTextField;
 
 import java.awt.BorderLayout;
+import java.awt.event.KeyListener;
 
 public class Matrix_Block extends JPanel{
 	private JTextField textField_block;
@@ -26,6 +27,10 @@ public class Matrix_Block extends JPanel{
 		panel_block.add(textField_block);
 		textField_block.setColumns(10);
 	}
+        
+        public void setKeyListener(KeyListener k){
+            textField_block.addKeyListener(k);
+        }
 	
 	public String getText(){
 		return this.textField_block.getText();

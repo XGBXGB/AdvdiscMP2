@@ -43,6 +43,8 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
 import java.awt.SystemColor;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -50,7 +52,7 @@ import java.io.InputStream;
 import javax.imageio.ImageIO;
 import model.Observer;
 
-public class Main_GUI extends JFrame implements ActionListener, Observer {
+public class Main_GUI extends JFrame implements ActionListener, Observer, KeyListener {
 
     private Controller controller;
     private JSplitPane splitPane;
@@ -194,7 +196,7 @@ public class Main_GUI extends JFrame implements ActionListener, Observer {
         panel_factor.add(textField, BorderLayout.CENTER);
         textField.setColumns(10);
         textField.setText("9.0");
-        
+
         btn_apply_filter = new JButton("Apply Filter");
         btn_apply_filter.addActionListener(this);
         panel_filter.add(btn_apply_filter, BorderLayout.SOUTH);
@@ -266,6 +268,7 @@ public class Main_GUI extends JFrame implements ActionListener, Observer {
         for (int x = 0; x < size; x++) {
             for (int y = 0; y < size; y++) {
                 Matrix_Block mb = new Matrix_Block();
+                mb.setKeyListener(this);
                 GridBagConstraints gbc_textField = new GridBagConstraints();
                 gbc_textField.fill = GridBagConstraints.HORIZONTAL;
                 gbc_textField.gridx = x;
@@ -313,9 +316,10 @@ public class Main_GUI extends JFrame implements ActionListener, Observer {
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
                 int index = i * size + j;
-                
-                if(listBlock.get(index).getText().equals(""))
+
+                if (listBlock.get(index).getText().equals("")) {
                     return false;
+                }
             }
         }
         return true;
@@ -323,22 +327,24 @@ public class Main_GUI extends JFrame implements ActionListener, Observer {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-		// TODO Auto-generated method stub
+        // TODO Auto-generated method stub
 
         if (e.getSource() == btn_reset_filter) {
             this.resetMatrix();
         } else if (e.getSource() == cmb_image_filters) {
             String filterName = cmb_image_filters.getSelectedItem().toString();
-            int size = (int) Math.sqrt(listBlock.size());
-            double[][] filterArray = controller.getFilterArray(size, filterName);
-            for (int i = 0; i < size; i++) {
-                for (int j = 0; j < size; j++) {
-                    int index = i * size + j;
-                    listBlock.get(index).setText(String.valueOf((int)filterArray[i][j]));
+            if (!filterName.equals("Custom")) {
+                int size = (int) Math.sqrt(listBlock.size());
+                double[][] filterArray = controller.getFilterArray(size, filterName);
+                for (int i = 0; i < size; i++) {
+                    for (int j = 0; j < size; j++) {
+                        int index = i * size + j;
+                        listBlock.get(index).setText(String.valueOf((int) filterArray[i][j]));
+                    }
                 }
             }
         } else if (e.getSource() == btn_apply_filter) {
-            if(checkBoxes()==true){
+            if (checkBoxes() == true) {
                 BufferedImage filteredImage = controller.filterImage(cmb_image_filters.getSelectedItem().toString(), Double.parseDouble(textField.getText()), (int) Math.sqrt(listBlock.size()));
                 setFiltered(filteredImage);
             }
@@ -346,17 +352,17 @@ public class Main_GUI extends JFrame implements ActionListener, Observer {
             JFileChooser chooser = new JFileChooser();
             int returnVal = chooser.showOpenDialog(null);
             if (returnVal == JFileChooser.APPROVE_OPTION) {
-                try{
+                try {
                     File file = chooser.getSelectedFile();
                     setPicture(file.getAbsolutePath());
-                    
+
                     BufferedImage img = ImageIO.read(file);
                     controller.setOriginal(img);
                     controller.setFiltered(img);
-                }catch(IOException ex){
+                } catch (IOException ex) {
                     System.out.println("CRAP");
                 }
-                
+
                 btn_apply_filter.setEnabled(true);
                 //filepathText.setText(file.getPath());
             };
@@ -388,6 +394,21 @@ public class Main_GUI extends JFrame implements ActionListener, Observer {
     public void update() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
         //get filtered image from controller
+    }
+
+    @Override
+    public void keyTyped(KeyEvent ke) {
+        cmb_image_filters.setSelectedItem("Custom");
+    }
+
+    @Override
+    public void keyPressed(KeyEvent ke) {
+        cmb_image_filters.setSelectedItem("Custom");
+    }
+
+    @Override
+    public void keyReleased(KeyEvent ke) {
+        cmb_image_filters.setSelectedItem("Custom");
     }
 
 }
