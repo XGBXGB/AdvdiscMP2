@@ -73,7 +73,7 @@ public class Main_GUI extends JFrame implements ActionListener, Observer, KeyLis
     private JMenuItem menuItem_7x7;
     private JMenuItem menuItem_9x9;
     private JButton btn_apply_filter;
-    private ArrayList<Matrix_Block> listBlock;
+    private ArrayList<ArrayList<Matrix_Block>> listBlock;
     private JFileChooser fc;
     private JLabel image_original;
     private JLabel image_filtered;
@@ -93,7 +93,7 @@ public class Main_GUI extends JFrame implements ActionListener, Observer, KeyLis
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         this.setSize((int) (screenSize.width / 1.2), 450);
 
-        listBlock = new ArrayList<Matrix_Block>();
+        listBlock = new ArrayList<ArrayList<Matrix_Block>>();
         fc = new JFileChooser();
         try {
             for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
@@ -226,14 +226,6 @@ public class Main_GUI extends JFrame implements ActionListener, Observer, KeyLis
         menuItem_5x5.addActionListener(this);
         menu_matrix_size.add(menuItem_5x5);
 
-        menuItem_7x7 = new JMenuItem("7X7");
-        menuItem_7x7.addActionListener(this);
-        menu_matrix_size.add(menuItem_7x7);
-
-        menuItem_9x9 = new JMenuItem("9x9");
-        menuItem_9x9.addActionListener(this);
-        menu_matrix_size.add(menuItem_9x9);
-
         setMatrix(3);
         setImageWidth((int) (panel_image.getPreferredSize().width / 2.2));
         setImageHeight((int) (this.getSize().width / 3.2));
@@ -266,6 +258,8 @@ public class Main_GUI extends JFrame implements ActionListener, Observer, KeyLis
         panel_filter_content.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), title, TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
         panel_matrix.removeAll();
         for (int x = 0; x < size; x++) {
+        	ArrayList<Matrix_Block> listBlockCol = new ArrayList<Matrix_Block>();
+        	
             for (int y = 0; y < size; y++) {
                 Matrix_Block mb = new Matrix_Block();
                 mb.setKeyListener(this);
@@ -275,9 +269,10 @@ public class Main_GUI extends JFrame implements ActionListener, Observer, KeyLis
                 gbc_textField.gridy = y;
                 gbc_textField.weightx = 30;
                 gbc_textField.weighty = 30;
-                listBlock.add(mb);
+                listBlockCol.add(mb);
                 panel_matrix.add(mb, gbc_textField);
             }
+            listBlock.add(listBlockCol);
         }
 
         this.revalidate();
@@ -287,7 +282,8 @@ public class Main_GUI extends JFrame implements ActionListener, Observer, KeyLis
 
     public void resetMatrix() {
         for (int i = 0; i < listBlock.size(); i++) {
-            listBlock.get(i).setText("");
+        	for(int j = 0; j<listBlock.get(i).size(); j++)
+        		listBlock.get(i).get(j).setText("");
         }
     }
 
@@ -312,12 +308,13 @@ public class Main_GUI extends JFrame implements ActionListener, Observer, KeyLis
     }
 
     public boolean checkBoxes() {//returns true if all boxes are filled
-        int size = (int) Math.sqrt(listBlock.size());
-        for (int i = 0; i < size; i++) {
-            for (int j = 0; j < size; j++) {
-                int index = i * size + j;
-
-                if (listBlock.get(index).getText().equals("")) {
+        int size = listBlock.size();
+        
+        //System.out.println("LIST BLOCK SIZ: "+listBlock.size());
+        for (int i = 0; i < listBlock.size(); i++) {
+            for (int j = 0; j < listBlock.get(i).size(); j++) {
+            	  // System.out.println("LIST BLOCK SIZE COL: "+listBlock.get(i).size());
+                if (listBlock.get(i).get(j).getText().equals("")) {
                     return false;
                 }
             }
@@ -334,30 +331,34 @@ public class Main_GUI extends JFrame implements ActionListener, Observer, KeyLis
         } else if (e.getSource() == cmb_image_filters) {
             String filterName = cmb_image_filters.getSelectedItem().toString();
             if (!filterName.equals("Custom")) {
-                int size = (int) Math.sqrt(listBlock.size());
-                double[][] filterArray = controller.getFilterArray(size, filterName);
-                for (int i = 0; i < size; i++) {
-                    for (int j = 0; j < size; j++) {
-                        int index = i * size + j;
-                        listBlock.get(index).setText(String.valueOf((int) filterArray[i][j]));
+               
+                double[][] filterArray = controller.getFilterArray(listBlock.size(), filterName);
+                for (int i = 0; i < listBlock.size(); i++) {
+                    for (int j = 0; j < listBlock.get(i).size(); j++) {
+                        listBlock.get(i).get(j).setText(String.valueOf((int) filterArray[i][j]));
                     }
                 }
             }
         } else if (e.getSource() == btn_apply_filter) {
+        	System.out.println("CHECK BOXES: "+ checkBoxes());
             if (checkBoxes() == true) {
                 BufferedImage filteredImage = null;
                 if (!cmb_image_filters.getSelectedItem().toString().equals("Custom")) {
-                    filteredImage = controller.filterImage(cmb_image_filters.getSelectedItem().toString(), Double.parseDouble(textField.getText()), (int) Math.sqrt(listBlock.size()));
+                    filteredImage = controller.filterImage(cmb_image_filters.getSelectedItem().toString(), 
+                    			Double.parseDouble(textField.getText()), listBlock.size());
+                 //   System.out.println("HELLo");
                 } else {
-                    int size = (int) Math.sqrt(listBlock.size());
-                    double[][] kernel = new double[size][size];
-                    for (int i = 0; i < size; i++) {
-                        for (int j = 0; j < size; j++) {
-                            int index = i * size + j;
-                            kernel[i][j] = Double.parseDouble(listBlock.get(index).getText());
+                	//System.out.println("LIST BLOCK SIZSE: "+ listBlock.size());
+                    double[][] kernel = new double[listBlock.size()][listBlock.size()];
+                    for (int i = 0; i < listBlock.size(); i++) {
+                        for (int j = 0; j < listBlock.get(i).size(); j++) {
+                        //	System.out.println("LIST BLOCK SIZSE COL : "+ listBlock.get(i).size());
+                            kernel[i][j] = Double.parseDouble(listBlock.get(i).get(j).getText());
+                          //  System.out.printf("%.2lf " + kernel[i][j]);
                         }
+                       // System.out.println();
                     }
-                    filteredImage = controller.filterImage(kernel, Double.parseDouble(textField.getText()), (int) Math.sqrt(listBlock.size()));
+                    filteredImage = controller.filterImage(kernel, Double.parseDouble(textField.getText()), listBlock.size());
                 }
                 setFiltered(filteredImage);
             }
@@ -392,16 +393,7 @@ public class Main_GUI extends JFrame implements ActionListener, Observer, KeyLis
             textField.setText("25.0");
             listBlock.clear();
             setMatrix(5);
-        } else if (e.getSource() == menuItem_7x7) {
-            resetMatrix();
-            listBlock.clear();
-            setMatrix(7);
-        } else if (e.getSource() == menuItem_9x9) {
-            resetMatrix();
-            listBlock.clear();
-            setMatrix(9);
-        }
-
+        } 
     }
 
     @Override
