@@ -257,10 +257,10 @@ public class Main_GUI extends JFrame implements ActionListener, Observer, KeyLis
         String title = size + "X" + size + " Matrix";
         panel_filter_content.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), title, TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
         panel_matrix.removeAll();
-        for (int x = 0; x < size; x++) {
+        for (int y = 0; y < size; y++) {
         	ArrayList<Matrix_Block> listBlockCol = new ArrayList<Matrix_Block>();
         	
-            for (int y = 0; y < size; y++) {
+            for (int x = 0; x < size; x++) {
                 Matrix_Block mb = new Matrix_Block();
                 mb.setKeyListener(this);
                 GridBagConstraints gbc_textField = new GridBagConstraints();
@@ -333,10 +333,20 @@ public class Main_GUI extends JFrame implements ActionListener, Observer, KeyLis
             if (!filterName.equals("Custom")) {
                
                 double[][] filterArray = controller.getFilterArray(listBlock.size(), filterName);
+                
+                for(int i = 0; i<3; i++)
+                {
+                	for(int j = 0; j<3; j++)
+                		System.out.printf("%d ", (int)filterArray[i][j] );
+                	
+                	System.out.println();
+                }
                 for (int i = 0; i < listBlock.size(); i++) {
                     for (int j = 0; j < listBlock.get(i).size(); j++) {
                         listBlock.get(i).get(j).setText(String.valueOf((int) filterArray[i][j]));
+                      //  System.out.printf("%s ", listBlock.get(i).get(j).getText());
                     }
+                    //System.out.println();
                 }
             }
         } else if (e.getSource() == btn_apply_filter) {
