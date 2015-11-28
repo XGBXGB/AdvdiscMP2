@@ -12,6 +12,7 @@ public class Controller implements Subject{
 
     private FilterFactory ff;
     private Filter f;
+    
     private static Controller instance;
     private ArrayList<Observer> observers;
     private ImageModel model;
@@ -29,6 +30,7 @@ public class Controller implements Subject{
         createDefaultIdentityFilter();
         createDefaultSharpenFilter();
         createDefaultEdgeDetectFilter();
+        createDefaultEdgeEnhanceFilter();
     }
     
     public BufferedImage getOriginal(){
@@ -122,6 +124,27 @@ public class Controller implements Subject{
         f.setMatrix3x3(matrix3x3);
         f.setMatrix5x5(matrix5x5);
         ff.registerFilter("Edge Detect", f);
+    }
+    
+    public void createDefaultEdgeEnhanceFilter() {
+        this.f = new Filter();
+        this.f.setName("Edge Enhance");
+
+        double[][] matrix3x3 = new double[][]{
+            {0, 0, 0},
+            {-9, 9, 0},
+            {0, 0, 0}
+        };
+        double[][] matrix5x5 = new double[][]{
+            {0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0},
+            {0, 0, 1, 0, 0},
+            {0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0}
+        };
+        f.setMatrix3x3(matrix3x3);
+        f.setMatrix5x5(matrix5x5);
+        ff.registerFilter("Edge Enhance", f);
     }
 
     public void createDefaultBlurFilter() {
