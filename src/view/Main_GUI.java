@@ -418,17 +418,60 @@ public class Main_GUI extends JFrame implements ActionListener, Observer, KeyLis
             //ImageIO.write(image, "jpg", output);
         }
         else if (e.getSource() == menuItem_3x3) {
-            cmb_image_filters.setSelectedItem("Custom");
-            resetMatrix();
+        	cmb_image_filters.setSelectedItem(""+cmb_image_filters.getSelectedItem().toString());
+            //resetMatrix();
             textField.setText("9.0");
             listBlock.clear();
             setMatrix(3);
+            String filterName = cmb_image_filters.getSelectedItem().toString();
+            System.out.println("Nana " + filterName);
+            if (!filterName.equals("Custom")) {
+               
+                double[][] filterArray = controller.getFilterArray(listBlock.size(), filterName);
+                
+                for(int i = 0; i<3; i++)
+                {
+                	for(int j = 0; j<3; j++)
+                		System.out.printf("%d ", (int)filterArray[i][j]);
+                	
+                	System.out.println();
+                }
+                for (int i = 0; i < listBlock.size(); i++) {
+                    for (int j = 0; j < listBlock.get(i).size(); j++) {
+                        listBlock.get(i).get(j).setText(String.valueOf((int) filterArray[i][j]));
+                      //  System.out.printf("%s ", listBlock.get(i).get(j).getText());
+                    }
+                    //System.out.println();
+                }
+            }
+            
         } else if (e.getSource() == menuItem_5x5) {
-            cmb_image_filters.setSelectedItem("Custom");
-            resetMatrix();
+        	cmb_image_filters.setSelectedItem(""+cmb_image_filters.getSelectedItem().toString());
+            //resetMatrix();
             textField.setText("25.0");
             listBlock.clear();
             setMatrix(5);
+            String filterName = cmb_image_filters.getSelectedItem().toString();
+            System.out.println("Nana " + filterName);
+            if (!filterName.equals("Custom")) {
+               
+                double[][] filterArray = controller.getFilterArray(listBlock.size(), filterName);
+                
+                for(int i = 0; i<3; i++)
+                {
+                	for(int j = 0; j<3; j++)
+                		System.out.printf("%d ", (int)filterArray[i][j]);
+                	
+                	System.out.println();
+                }
+                for (int i = 0; i < listBlock.size(); i++) {
+                    for (int j = 0; j < listBlock.get(i).size(); j++) {
+                        listBlock.get(i).get(j).setText(String.valueOf((int) filterArray[i][j]));
+                      //  System.out.printf("%s ", listBlock.get(i).get(j).getText());
+                    }
+                    //System.out.println();
+                }
+            }
         } 
     }
 
