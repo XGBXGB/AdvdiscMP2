@@ -1,4 +1,4 @@
-package model;
+package driver;
 import java.util.HashMap;
 
 public class FilterFactory {

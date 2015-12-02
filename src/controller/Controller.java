@@ -62,6 +62,16 @@ public class Controller implements Subject{
         model.setFiltered(img);
     }
     
+    public void setImageName(String name)
+    {
+    	model.setImageName(name);
+    }
+   
+    public String getImageName()
+    {
+    	return model.getImageName();
+    }
+    
     public double[][] getFilterArray(int size, String filterName) {
         f = ff.getFilter(filterName);
         if(size == 3) {
@@ -131,16 +141,16 @@ public class Controller implements Subject{
         this.f.setName("Edge Enhance");
 
         double[][] matrix3x3 = new double[][]{
-            {0, 0, 0},
-            {-9, 9, 0},
-            {0, 0, 0}
+            {0, 9, 0},
+            {9, -36, 9},
+            {0, 9, 0}
         };
         double[][] matrix5x5 = new double[][]{
-            {0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0},
-            {0, 0, 1, 0, 0},
-            {0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0}
+            {0, 0, 6, 0, 0},
+            {0, 0, 6, 0, 0},
+            {6, 6, -50, 6, 6},
+            {0, 0, 6, 0, 0},
+            {0, 0, 6, 0, 0}
         };
         f.setMatrix3x3(matrix3x3);
         f.setMatrix5x5(matrix5x5);

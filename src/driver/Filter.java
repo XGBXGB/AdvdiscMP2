@@ -1,4 +1,4 @@
-package model;
+package driver;
 
 public class Filter {
 	private String name;

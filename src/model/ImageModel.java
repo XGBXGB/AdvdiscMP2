@@ -19,10 +19,12 @@ public class ImageModel {
 
     private BufferedImage image;
     private BufferedImage filteredImage;
+    private String ImageName;
     
     public ImageModel() {
         image = null;
         filteredImage = null;
+        ImageName = "";
     }
     
     public BufferedImage getOriginal(){
@@ -33,12 +35,21 @@ public class ImageModel {
         return filteredImage;
     }
     
+    public String getImageName(){
+    	return ImageName;
+    }
+    
     public void setOriginal(BufferedImage image){
         this.image = image;
     }
     
     public void setFiltered(BufferedImage image){
         filteredImage = image;
+    }
+
+    public void setImageName(String name)
+    {
+    	ImageName = name;
     }
     
     public BufferedImage filterImage(double[][] kernel, int kernelWidth, int kernelHeight, double divisor) {
@@ -58,7 +69,7 @@ public class ImageModel {
                 for (int kernelX = 0; kernelX < kernelWidth; kernelX++) {
                     for (int kernelY = 0; kernelY < kernelHeight; kernelY++) {
                         int pixelX = (j - widthHalfOffset + kernelX + w) % w;
-                        int pixelY = (i - heightHalfOffset + kernelX + h) % h;
+                        int pixelY = (i - heightHalfOffset + kernelY + h) % h;
                         double weight = kernel[kernelX][kernelY];
                         Color currPixel = new Color(image.getRGB(pixelX, pixelY));
                         r += currPixel.getRed() * (weight/divisor);

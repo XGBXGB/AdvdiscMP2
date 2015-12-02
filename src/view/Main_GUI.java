@@ -213,6 +213,7 @@ public class Main_GUI extends JFrame implements ActionListener, Observer, KeyLis
         menu_file.add(menuItem_newImage);
 
         menuItem_saveImage = new JMenuItem("Save Image");
+        menuItem_saveImage.addActionListener(this);
         menu_file.add(menuItem_saveImage);
 
         menu_matrix_size = new JMenu("Matrix Size");
@@ -383,15 +384,40 @@ public class Main_GUI extends JFrame implements ActionListener, Observer, KeyLis
                     BufferedImage img = ImageIO.read(file);
                     controller.setOriginal(img);
                     controller.setFiltered(img);
+                    controller.setImageName(file.getName());
                 } catch (IOException ex) {
                     System.out.println("CRAP");
                 }
 
                 btn_apply_filter.setEnabled(true);
                 //filepathText.setText(file.getPath());
-            };
+            }
 
-        } else if (e.getSource() == menuItem_3x3) {
+        }
+        else if (e.getSource() == menuItem_saveImage)
+        {
+        	JFileChooser chooserfile = new JFileChooser();
+        	chooserfile.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+            int returnVal = chooserfile.showSaveDialog(null);
+            if (returnVal == JFileChooser.APPROVE_OPTION) {
+                    File file = chooserfile.getSelectedFile();
+                    File output = new File(file.getPath()+"\\filtered-" + controller.getImageName());
+                    try {
+						ImageIO.write(controller.getFiltered(), "jpg", output);
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+            
+
+               // btn_apply_filter.setEnabled(true);
+                //filepathText.setText(file.getPath());
+            }
+
+        	//File output = new File("C:\\Users\\user\\workspace\\aADVDISCMP2\\src\\filtered-" + input.getName());
+            //ImageIO.write(image, "jpg", output);
+        }
+        else if (e.getSource() == menuItem_3x3) {
             cmb_image_filters.setSelectedItem("Custom");
             resetMatrix();
             textField.setText("9.0");
