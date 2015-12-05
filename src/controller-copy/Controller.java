@@ -1,19 +1,24 @@
 package controller;
 
+import driver.Filter;
+import driver.FilterFactory;
 import java.awt.image.BufferedImage;
-
-import model.Filter;
-import model.FilterFactory;
+import java.util.ArrayList;
 import model.ImageModel;
-public class Controller{
+import model.Observer;
+import model.Subject;
+
+public class Controller implements Subject{
 
     private FilterFactory ff;
     private Filter f;
     
     private static Controller instance;
+    private ArrayList<Observer> observers;
     private ImageModel model;
 
     public Controller() {
+        observers = new ArrayList();
         ff = FilterFactory.getInstance();
         f = null;
         instance = null;
@@ -42,13 +47,11 @@ public class Controller{
             kernel = ff.getFilter(filter).getMatrix3x3();
         else
             kernel = ff.getFilter(filter).getMatrix5x5();
-       model.setFiltered(model.filterImage(kernel, kernelDimension, kernelDimension, divisor));
-       return model.getFiltered();
+        return model.filterImage(kernel, kernelDimension, kernelDimension, divisor);
     }
     
     public BufferedImage filterImage(double[][] kernel, Double divisor, int kernelDimension){
-        model.setFiltered(model.filterImage(kernel, kernelDimension, kernelDimension, divisor));
-        return model.getFiltered();
+        return model.filterImage(kernel, kernelDimension, kernelDimension, divisor);
     }
     
     public void setOriginal(BufferedImage img){
@@ -262,5 +265,20 @@ public class Controller{
         ff.registerFilter("Darken", f);
     }
 
-  
+    @Override
+    public void registerObserver(Observer o) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void unRegisterObserver(Observer o) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void notifyObservers() {
+        for(Observer o : observers){
+            o.update();
+        }
+    }
 }

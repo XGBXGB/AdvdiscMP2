@@ -1,48 +1,58 @@
 package view;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Graphics2D;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Image;
-import java.awt.RenderingHints;
-import java.awt.SystemColor;
-import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-
-import javax.imageio.ImageIO;
-import javax.swing.DefaultComboBoxModel;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JFileChooser;
+import controller.Controller;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JPanel;
-import javax.swing.JSplitPane;
-import javax.swing.JTextField;
-import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
+import javax.swing.JSplitPane;
+
+import java.awt.BorderLayout;
+import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.RenderingHints;
+import java.awt.Toolkit;
+
+import javax.swing.JPanel;
+
+import java.awt.Dimension;
+
+import javax.swing.JButton;
+
+import java.awt.Color;
+
+import javax.swing.JLabel;
+import javax.swing.JComboBox;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.border.TitledBorder;
-import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.ImageIcon;
+import javax.swing.JFileChooser;
+import javax.swing.JToolBar;
+import javax.swing.SwingConstants;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JMenu;
 
-import controller.Controller;
-import javax.swing.JProgressBar;
+import java.awt.GridBagLayout;
 
-public class Main_GUI extends JFrame implements ActionListener,KeyListener {
+import javax.swing.JTextField;
+
+import java.awt.GridBagConstraints;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.util.ArrayList;
+import java.awt.SystemColor;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.io.BufferedInputStream;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import javax.imageio.ImageIO;
+import model.Observer;
+
+public class Main_GUI extends JFrame implements ActionListener, Observer, KeyListener {
 
     private Controller controller;
     private JSplitPane splitPane;
@@ -60,6 +70,8 @@ public class Main_GUI extends JFrame implements ActionListener,KeyListener {
     private JMenu menu_matrix_size;
     private JMenuItem menuItem_3x3;
     private JMenuItem menuItem_5x5;
+    private JMenuItem menuItem_7x7;
+    private JMenuItem menuItem_9x9;
     private JButton btn_apply_filter;
     private ArrayList<ArrayList<Matrix_Block>> listBlock;
     private JFileChooser fc;
@@ -152,7 +164,7 @@ public class Main_GUI extends JFrame implements ActionListener,KeyListener {
         cmb_image_filters = new JComboBox<String>();
         cmb_image_filters.setBackground(SystemColor.window);
         panel_filter_options.add(cmb_image_filters);
-        cmb_image_filters.setModel(new DefaultComboBoxModel(new String[]{"Custom", "Blur", "Brighten", "Edge Detect", "Edge Enhance", "Emboss", "Darken", "Identity", "Sharpen"}));
+        cmb_image_filters.setModel(new DefaultComboBoxModel(new String[]{"Custom", "Blur", "Brighten", "Edge Detect", "Edge Enhance", "Emboss", "Darken", "Identity", "Sharpen", "Threshold"}));
 
         btn_reset_filter = new JButton("Reset Filter");
         btn_reset_filter.addActionListener(this);
@@ -215,7 +227,7 @@ public class Main_GUI extends JFrame implements ActionListener,KeyListener {
         menuItem_5x5.addActionListener(this);
         menu_matrix_size.add(menuItem_5x5);
 
-        setMatrixSize(3);
+        setMatrix(3);
         setImageWidth((int) (panel_image.getPreferredSize().width / 2.2));
         setImageHeight((int) (this.getSize().width / 3.2));
         System.out.println("image size: " + image_height + "-" + image_width);
@@ -241,10 +253,7 @@ public class Main_GUI extends JFrame implements ActionListener,KeyListener {
         return this.image_width;
     }
 
-    /*******************************
-     *  Set the Size of the Matrix to be manipulated
-     *******************************/
-    public void setMatrixSize(int size) {
+    public void setMatrix(int size) {
 
         String title = size + "X" + size + " Matrix";
         panel_filter_content.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), title, TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
@@ -254,7 +263,6 @@ public class Main_GUI extends JFrame implements ActionListener,KeyListener {
         	
             for (int x = 0; x < size; x++) {
                 Matrix_Block mb = new Matrix_Block();
-                mb.setText("0");
                 mb.setKeyListener(this);
                 GridBagConstraints gbc_textField = new GridBagConstraints();
                 gbc_textField.fill = GridBagConstraints.HORIZONTAL;
@@ -273,14 +281,11 @@ public class Main_GUI extends JFrame implements ActionListener,KeyListener {
         cmb_image_filters.addActionListener(this);
     }
 
-    
     public void resetMatrix() {
         for (int i = 0; i < listBlock.size(); i++) {
         	for(int j = 0; j<listBlock.get(i).size(); j++)
-        		listBlock.get(i).get(j).setText("0");
+        		listBlock.get(i).get(j).setText("");
         }
-        
-        textField.setText(String.valueOf(listBlock.size() * listBlock.size()));
     }
 
     public void setFiltered(Image i) {
@@ -303,14 +308,13 @@ public class Main_GUI extends JFrame implements ActionListener,KeyListener {
         return new ImageIcon(resizedImg);
     }
 
-    /************************
-     * check the block of the matrix if each block has an input
-     ************************/
     public boolean checkBoxes() {//returns true if all boxes are filled
         int size = listBlock.size();
         
+        //System.out.println("LIST BLOCK SIZ: "+listBlock.size());
         for (int i = 0; i < listBlock.size(); i++) {
             for (int j = 0; j < listBlock.get(i).size(); j++) {
+            	  // System.out.println("LIST BLOCK SIZE COL: "+listBlock.get(i).size());
                 if (listBlock.get(i).get(j).getText().equals("")) {
                     return false;
                 }
@@ -320,56 +324,61 @@ public class Main_GUI extends JFrame implements ActionListener,KeyListener {
     }
 
     @Override
-    public void actionPerformed(ActionEvent e) 
-    {
+    public void actionPerformed(ActionEvent e) {
+        // TODO Auto-generated method stub
+
         if (e.getSource() == btn_reset_filter) {
-            BufferedImage filteredImage = null;  
-        	filteredImage = controller.filterImage("Identity", 
-          			Double.parseDouble(textField.getText()), listBlock.size());
-            setFiltered(filteredImage);
             this.resetMatrix();
-        } 
-        else if (e.getSource() == cmb_image_filters) 
-        {
+        } else if (e.getSource() == cmb_image_filters) {
             String filterName = cmb_image_filters.getSelectedItem().toString();
-            
             if (!filterName.equals("Custom")) {
+               
                 double[][] filterArray = controller.getFilterArray(listBlock.size(), filterName);
-            
+                
+                for(int i = 0; i<3; i++)
+                {
+                	for(int j = 0; j<3; j++)
+                		System.out.printf("%d ", (int)filterArray[i][j] );
+                	
+                	System.out.println();
+                }
                 for (int i = 0; i < listBlock.size(); i++) {
                     for (int j = 0; j < listBlock.get(i).size(); j++) {
                         listBlock.get(i).get(j).setText(String.valueOf((int) filterArray[i][j]));
+                      //  System.out.printf("%s ", listBlock.get(i).get(j).getText());
                     }
+                    //System.out.println();
                 }
             }
         } else if (e.getSource() == btn_apply_filter) {
+        	System.out.println("CHECK BOXES: "+ checkBoxes());
             if (checkBoxes() == true) {
                 BufferedImage filteredImage = null;
                 if (!cmb_image_filters.getSelectedItem().toString().equals("Custom")) {
                     filteredImage = controller.filterImage(cmb_image_filters.getSelectedItem().toString(), 
                     			Double.parseDouble(textField.getText()), listBlock.size());
+                 //   System.out.println("HELLo");
                 } else {
+                	//System.out.println("LIST BLOCK SIZSE: "+ listBlock.size());
                     double[][] kernel = new double[listBlock.size()][listBlock.size()];
                     for (int i = 0; i < listBlock.size(); i++) {
                         for (int j = 0; j < listBlock.get(i).size(); j++) {
+                        //	System.out.println("LIST BLOCK SIZSE COL : "+ listBlock.get(i).size());
                             kernel[i][j] = Double.parseDouble(listBlock.get(i).get(j).getText());
+                          //  System.out.printf("%.2lf " + kernel[i][j]);
                         }
-                       
+                       // System.out.println();
                     }
                     filteredImage = controller.filterImage(kernel, Double.parseDouble(textField.getText()), listBlock.size());
                 }
                 setFiltered(filteredImage);
             }
         } else if (e.getSource() == menuItem_newImage) {
-        	FileNameExtensionFilter filter = new FileNameExtensionFilter("Image Files", "jpg", "png", "gif", "jpeg");
-        	JFileChooser chooser = new JFileChooser();
+            JFileChooser chooser = new JFileChooser();
             int returnVal = chooser.showOpenDialog(null);
             if (returnVal == JFileChooser.APPROVE_OPTION) {
                 try {
-                	
-                	chooser.setFileFilter(filter);
                     File file = chooser.getSelectedFile();
-           
                     setPicture(file.getAbsolutePath());
 
                     BufferedImage img = ImageIO.read(file);
@@ -379,7 +388,9 @@ public class Main_GUI extends JFrame implements ActionListener,KeyListener {
                 } catch (IOException ex) {
                     System.out.println("CRAP");
                 }
+
                 btn_apply_filter.setEnabled(true);
+                //filepathText.setText(file.getPath());
             }
 
         }
@@ -390,21 +401,28 @@ public class Main_GUI extends JFrame implements ActionListener,KeyListener {
             int returnVal = chooserfile.showSaveDialog(null);
             if (returnVal == JFileChooser.APPROVE_OPTION) {
                     File file = chooserfile.getSelectedFile();
-                    BufferedImage bi = controller.getFiltered();
                     File output = new File(file.getPath()+"\\filtered-" + controller.getImageName());
                     try {
-						ImageIO.write(bi, "jpg", output);
+						ImageIO.write(controller.getFiltered(), "jpg", output);
 					} catch (IOException e1) {
+						// TODO Auto-generated catch block
 						e1.printStackTrace();
 					}
+            
+
+               // btn_apply_filter.setEnabled(true);
+                //filepathText.setText(file.getPath());
             }
+
+        	//File output = new File("C:\\Users\\user\\workspace\\aADVDISCMP2\\src\\filtered-" + input.getName());
+            //ImageIO.write(image, "jpg", output);
         }
         else if (e.getSource() == menuItem_3x3) {
         	cmb_image_filters.setSelectedItem(""+cmb_image_filters.getSelectedItem().toString());
             //resetMatrix();
             textField.setText("9.0");
             listBlock.clear();
-            setMatrixSize(3);
+            setMatrix(3);
             String filterName = cmb_image_filters.getSelectedItem().toString();
             System.out.println("Nana " + filterName);
             if (!filterName.equals("Custom")) {
@@ -421,7 +439,9 @@ public class Main_GUI extends JFrame implements ActionListener,KeyListener {
                 for (int i = 0; i < listBlock.size(); i++) {
                     for (int j = 0; j < listBlock.get(i).size(); j++) {
                         listBlock.get(i).get(j).setText(String.valueOf((int) filterArray[i][j]));
+                      //  System.out.printf("%s ", listBlock.get(i).get(j).getText());
                     }
+                    //System.out.println();
                 }
             }
             
@@ -430,19 +450,35 @@ public class Main_GUI extends JFrame implements ActionListener,KeyListener {
             //resetMatrix();
             textField.setText("25.0");
             listBlock.clear();
-            setMatrixSize(5);
+            setMatrix(5);
             String filterName = cmb_image_filters.getSelectedItem().toString();
             System.out.println("Nana " + filterName);
             if (!filterName.equals("Custom")) {
                
                 double[][] filterArray = controller.getFilterArray(listBlock.size(), filterName);
+                
+                for(int i = 0; i<3; i++)
+                {
+                	for(int j = 0; j<3; j++)
+                		System.out.printf("%d ", (int)filterArray[i][j]);
+                	
+                	System.out.println();
+                }
                 for (int i = 0; i < listBlock.size(); i++) {
                     for (int j = 0; j < listBlock.get(i).size(); j++) {
                         listBlock.get(i).get(j).setText(String.valueOf((int) filterArray[i][j]));
+                      //  System.out.printf("%s ", listBlock.get(i).get(j).getText());
                     }
+                    //System.out.println();
                 }
             }
         } 
+    }
+
+    @Override
+    public void update() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        //get filtered image from controller
     }
 
     @Override

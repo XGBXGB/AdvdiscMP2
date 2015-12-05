@@ -1,11 +1,13 @@
 package view;
 
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.event.KeyListener;
-
 import javax.swing.JPanel;
+
+import java.awt.Dimension;
+
 import javax.swing.JTextField;
+
+import java.awt.BorderLayout;
+import java.awt.event.KeyListener;
 
 public class Matrix_Block extends JPanel{
 	private JTextField textField_block;
@@ -19,7 +21,7 @@ public class Matrix_Block extends JPanel{
 		add(panel_block);
 		panel_block.setLayout(new BorderLayout(0, 0));
 		
-		textField_block = new JTextField("1");
+		textField_block = new JTextField();
 		textField_block.setDocument(new JTextFieldFilter(JTextFieldFilter.FLOAT));
 		((JTextFieldFilter)textField_block.getDocument()).setNegativeAccepted(true);
 		panel_block.add(textField_block);
